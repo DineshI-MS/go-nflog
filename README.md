@@ -72,3 +72,21 @@ For documentation and more examples please take a look at [![PkgGoDev](https://p
 ## Requirements
 
 * A version of Go that is [supported by upstream](https://golang.org/doc/devel/release.html#policy)
+
+## Advanced Configuration
+
+### Socket Buffer Size
+
+For high-throughput scenarios, you may need to increase the socket receive buffer size:
+
+```go
+config := nflog.Config{
+    Group:       100,
+    Copymode:    nflog.CopyPacket,
+    SockBufSize: 2097152, // 2MB socket buffer
+}
+
+nf, err := nflog.Open(&config)
+```
+
+Note: Setting a large socket buffer may require CAP_NET_ADMIN capability or increased system limits.

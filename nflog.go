@@ -78,6 +78,37 @@ func Open(config *Config) (*Nflog, error) {
 	}
 	nflog.Con = con
 
+    // Set socket receive buffer size if specified
+    if config.SockBufSize > 0 {
+		// Linux doubles the buffer size, so request half of what user wants
+		requestSize := config.SockBufSize / 2
+
+        // Get the underlying file descriptor
+        rawConn, err := con.SyscallConn()
+        if err != nil {
+            con.Close()
+            return nil, fmt.Errorf("failed to get raw connection: %w", err)
+        }
+        
+        var sockErr error
+        err = rawConn.Control(func(fd uintptr) {
+            // Try SO_RCVBUFFORCE first (bypasses limits with CAP_NET_ADMIN)
+            sockErr = unix.SetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_RCVBUFFORCE, int(requestSize))
+            if sockErr != nil {
+                // Fall back to SO_RCVBUF
+                sockErr = unix.SetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_RCVBUF, int(requestSize))
+                if sockErr != nil && config.Logger != nil {
+                    config.Logger.Errorf("Failed to set socket buffer size to %d: %v", requestSize, sockErr)
+                }
+            }
+        })
+        
+        if err != nil {
+            con.Close()
+            return nil, fmt.Errorf("failed to control socket: %w", err)
+        }
+    }
+
 	if config.Logger == nil {
 		nflog.logger = new(devNull)
 	} else {

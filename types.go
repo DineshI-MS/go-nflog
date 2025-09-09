@@ -153,6 +153,10 @@ type Config struct {
 	// that will be copied to userspace.
 	Bufsize uint32
 
+    // Size of the socket receive buffer (in bytes)
+    // If set to 0, the system default will be used
+    SockBufSize uint32
+
 	// Optional settings to enable/disable features
 	Settings uint16
 
