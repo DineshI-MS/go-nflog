@@ -66,7 +66,6 @@ func TestSockBufSize(t *testing.T) {
 	err = rawConn.Control(func(fd uintptr) {
 		bufsize, sockErr = unix.GetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_RCVBUF)
 	})
-
 	if err != nil {
 		t.Fatalf("failed to control socket: %v", err)
 	}

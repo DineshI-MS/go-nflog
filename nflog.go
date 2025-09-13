@@ -78,7 +78,7 @@ func Open(config *Config) (*Nflog, error) {
 	}
 	nflog.Con = con
 
-    // Set socket receive buffer size if specified
+	// Set socket receive buffer size if specified
 	if config.SockBufSize > 0 {
 		// Linux doubles the buffer size, so request half of what user wants
 		requestSize := config.SockBufSize / 2
@@ -102,7 +102,6 @@ func Open(config *Config) (*Nflog, error) {
 				}
 			}
 		})
-
 		if err != nil {
 			con.Close()
 			return nil, fmt.Errorf("failed to control socket: %w", err)
